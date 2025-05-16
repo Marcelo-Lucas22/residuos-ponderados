@@ -9,11 +9,10 @@
   - Colocação (pontos de Chebyshev/Legendre).  
   - Galerkin.  
   - Mínimos Quadrados.  
-- **Implementações em Python** (com `NumPy`, `SciPy` e `Matplotlib`).  
+- **Implementações em Python** (com `NumPy`, `SymPy` ,`SciPy` e `Matplotlib`).  
 - **Exemplos resolvidos**:  
   - Problemas de valor de contorno (PVC).  
   - Comparação entre métodos.  
-- **Exercícios propostos** (com soluções).  
 
 ---
 
