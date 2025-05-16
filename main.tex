@@ -1,0 +1,549 @@
+
+\documentclass[a4paper, 12pt]{article}
+
+\usepackage{natbib}
+%\usepackage[alf]{abntex2cite}
+%colocando o pacote de acento :
+\usepackage[utf8]{inputenc}
+%pacotes matematicos :
+\usepackage{amsmath,amsfonts,amssymb}
+% numerando as equações de acordo com a seções do documento :
+\numberwithin{equation}{section}
+%pacotes para inserir tipos de sublinhados 
+\usepackage[normalem]{ulem}
+%pacote para inserir letras de cores diferentes :
+\usepackage{color}
+
+% pacote para colocar o texto em duas ou mais colunas :
+\usepackage{multicol}
+
+% =========== pacote para o latex em português =========== % 
+\usepackage{listings}
+\usepackage[brazil]{babel}
+\usepackage[utf8]{inputenc} % Permite UTF-8
+\usepackage[T1]{fontenc}    % Configura a codificação das fontes
+\usepackage{lmodern}        % Usa fontes modernas que suportam UTF-8
+\usepackage{graphicx} % Required for inserting images
+% comando para cancelamento de expressões matemáticas :
+\usepackage{cancel}
+% pacote para colocar a cor em ambiente matemático:
+\usepackage{xcolor}
+% pacote para inserir pedaços de texto em latex :
+\usepackage{blindtext}
+% outro pacote para figuras:
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{subfig}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{tcolorbox}
+%\bibliographystyle{acm}
+
+
+% 
+\lstset{
+	language=Python,
+	backgroundcolor=\color{gray!10},
+	basicstyle=\ttfamily\footnotesize,
+	keywordstyle=\color{blue}\bfseries,
+	commentstyle=\color{green!50!black},
+	stringstyle=\color{orange},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	frame=single,
+	breaklines=true,
+	inputencoding=utf8,
+	extendedchars=true,
+	literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+	{Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+	{â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+	{à}{{\`a}}1 {è}{{\`e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1
+	{ã}{{\~a}}1 {õ}{{\~o}}1 {ç}{{\c{c}}}1 {Ç}{{\c{C}}}1
+}
+
+
+
+
+\begin{document}
+
+
+
+\begin{titlepage}
+	\begin{center}
+		\begin{figure}[!htp]
+			\centering
+			\includegraphics[scale=0.5]{imagens/logoufpa.jpeg}
+		\end{figure}
+	\vspace{0.5cm}
+	
+	{\Large UNIVERSIDADE FEDERAL DO PARÁ} 
+	\vspace{0.5cm}
+	
+	{\Large INSTITUTO DE GEOCIÊNCIAS} 
+	\vspace{0.5cm}
+	
+		{\Large PROGRAMA DE PÓS-GRADUAÇÃO EM GEOFÍSICA}
+	
+	\vspace{2cm}
+	
+	{\Large \textbf{Tópicos em Métodos Numéricos }}
+
+    \vspace{0.5cm}
+
+    {\large \textbf{Método de Resíduos Ponderados}}
+	
+	\vspace{1cm}
+	
+	{\textsc{Marcelo Lucas Almeida}}
+
+    \vspace{2cm}
+
+    {\texttt{marcelolucasif@gmail.com}}
+	
+%	{\large Exercício 1 }
+
+\vspace{2cm}
+
+	Belém - Pará  \\ 
+	
+	\vspace{0.5cm}
+	
+	20 de Janeiro de 2025
+
+	
+	
+	\end{center}
+
+
+
+
+\end{titlepage}
+    
+
+
+
+%% ==================== seção de introdução ============= %% 
+
+\section{Introdução }
+O estudo das equações diferenciais é uma etapa fundamental na formação de cientistas e engenheiros. Por meio da formulação de princípios e leis físicas, diversos fenômenos naturais podem ser descritos matematicamente, e essa descrição muitas vezes conduz à formulação de equações diferenciais, sejam elas ordinárias ou parciais. Compreender esses tipos de equações e saber como resolvê-las é essencial para interpretar e modelar o mundo ao nosso redor.
+
+Neste contexto, esta apostila tem como objetivo introduzir o estudante a algumas técnicas numéricas para a resolução de equações diferenciais com problema de valor de contorno, com foco nos métodos de resíduos ponderados, que constituem uma família de técnicas aproximadas para esse tipo de problema.
+
+Apresentaremos os principais métodos desse grupo, como o Método de Colocação, o Método dos Mínimos Quadrados e o Método de Galerkin. Daremos ênfase especial a este último, por ser um ponto de partida importante para a compreensão de métodos mais avançados, como o Método dos Elementos Finitos (MEF).
+
+Serão apresentadas as formulações matemáticas de cada método, sem, no entanto, exigir rigor formal nos conceitos teóricos envolvidos, de modo a facilitar a compreensão por parte do aluno.
+
+Após a formulação matemática de cada técnica, incluiremos exemplos práticos com suporte computacional em linguagem \href{https://www.python.org/}{Python}, que tem se mostrado uma excelente escolha para aplicações em computação numérica e científica.
+
+Como o foco desta apostila está nas técnicas numéricas, e não na linguagem de programação em si, será assumido que o leitor possui conhecimentos básicos de programação em Python. Para os que ainda não têm familiaridade com a linguagem, recomendamos as seguintes obras introdutórias: \citep{matthes} e \citep{sweigart}.
+
+Para aqueles que desejam aprofundar seus conhecimentos em computação numérica com as bibliotecas NumPy, SciPy, Matplotlib e Pandas, recomendamos o livro de \citep{johansson}, que oferece uma excelente abordagem prática.
+
+A idea principal usada no método de resíduos ponderados e substituir a nossa função incógnita $u(x)$ da nossa equação diferencial por um conjunto de funções linearmente independentes que  aproximam a solução da nossa equação diferencial e minimizar o \textit{resíduo} em um sentindo ponderado
+
+Para entender com mais clareza o parágrafo anterior, partiemos de um problema piloto simples, porém, didático do ponto de vista da matemática. 
+
+Seja uma equação diferencial ordinária de 2 ordem linear, de coeficientes não constante e não homogênea sobre algum domínio $\Omega$ da reta real $\mathbb{R}$ : 
+
+
+\begin{equation}
+    a(x) \dfrac{d^2u}{dx^2} + b(x)\dfrac{du}{dx} + c(x)u(x)  = h(x) \ \ \textrm{com} \ \ u(a) = u_0 ,  u(b) = u_1  \label{eq_governo}
+\end{equation}
+
+Com $a \leq x \leq b $. Para obtermos a expressão que caracteriza os métodos de ponderação de resíduos, trocamos $u(x)$ por um conjuntos de funções linearmnete independentes e que satsisfazem as condições de contorno do problema \citep{zienkiewicz2006finite}. 
+
+\begin{equation}
+    u(x) \approx u_n(x)  \label{eq_approx}
+\end{equation}
+
+Onde $u_n(x)$ e a nossa solução aproximada do problema. Substituindo (\ref{eq_approx}) em (\ref{eq_governo}) não teremos mais uma igual, mas sim, um \textit{resíduo} dado por : 
+
+\begin{equation}
+    R(x) = a(x) \dfrac{d^2u_n}{dx^2} + b(x)\dfrac{du_n}{dx} + c(x)u_n(x)  - h(x) \neq 0 \label{residuo}
+\end{equation}
+
+A solução numérica do problema é obtida minimizando esse resíduo em um sentido ponderado : 
+
+\begin{equation}
+    \int_{a}^{b} R(x) w(x) dx = 0 \label{minimizacao}
+\end{equation}
+
+Onde $w(x)$ é a nossa \textit{função peso}. 
+
+A forma como definimos $u_n(x)$ e a função $w(x)$ definem um técnica específica dos métodos de resíduos ponderados. Adiante veremos as principais técnicas usadas. 
+
+
+\begin{tcolorbox}[colback=gray!10!white, colframe=red!40!black, title={ Observação}]
+A ideias mostrada até o momento são facilmentes extendidas para resolver de forma numérica as equações diferencias em várias variáveis, ou seja, as Equações Diferencias Parciais \citep{zienkiewicz2006finite}, \citep{farlow1993partial}.
+
+\end{tcolorbox}
+
+\newpage
+
+\section{Método de Resíduos Ponderados}
+
+\subsection{Método da Colocação - Problema Unidimensional}
+O método da Coloção é uma técnica pertencente aos métodos de ponderação de resíduos e é usada para se obter a solução aproximada de uma equação diferecial com condições de contorno, sendo ordinária ou parcial. Focaremos em desenvolver esse método aproximado para o caso mais simplório, ou seja, aplicando à equações diferencias ordinárias. 
+
+Consideremos o caso onde temos as condições de \textit{contorno do tipo Direchlet Homogênea}, ou seja : 
+
+\begin{equation}
+    u(a) = u(b) = 0 
+\end{equation}
+
+Partindo de uma equação diferencial de 2 ordem não homogênea : 
+
+\begin{equation}
+     a(x) \dfrac{d^2u}{dx^2} + b(x)\dfrac{du}{dx} + c(x)u(x)  = h(x)
+\end{equation}
+
+O resíduo será dado por : 
+
+\begin{equation}
+    R(x) = a(x) \dfrac{d^2u_n}{dx^2} + b(x)\dfrac{du_n}{dx} + c(x)u_n(x)  - h(x) \label{residuo2}
+\end{equation}
+
+Minimizando esse resíduo em um sentido ponderado, teremos : 
+
+\begin{equation}
+    \int_{a}^{b} R(x) w(x) dx = 0
+\end{equation}
+
+Agora espexíficamos a funçãao de peso $w(x)$, que no método da colocação é a \textit{função generalizada de Dirac} \citep{bassalo2011elementos}. 
+
+\begin{equation}
+     \int_{a}^{b} R(x) \delta(x - x_i) dx = 0 \label{moment}
+\end{equation}
+
+A equação (\ref{moment}) acima só será igual à zero, se o resíduo $R(x)$ for calculado nos pontos $x_i$.
+
+\begin{equation}
+    R(x_i) = 0  \label{resi}
+\end{equation}
+
+Os pontos $x_i$ são conhecidos como \textit{pontos de colocação} e podem ser gerados de várias maneiras  ao londo do intervalo $[a,b]$: \textit{pontos uniformemente espaçados}, \textit{Polinômios ortogonais} e etc. 
+
+Como o resíduo é determinado pela equação (\ref{residuo2}), as funções de aproximação\footnote{Também chamadas de \textit{funções de base globais}.} $u_n(x)$ são um conjunto linearmente independentes que satisfazem as condições de contorno, ou seja : 
+
+\begin{equation}
+    u_n(x) = \sum_{j = 1}^{n} c_j N_j(x)  \label{funcs_base_momet}
+\end{equation}
+
+Com 
+
+\begin{equation}
+    N_j(a) = N_j(b) = 0 \ \ \textrm{para} \ \ j=1,2,\ldots,n.
+\end{equation}
+
+O sistema linear que é formado através da equação (\ref{resi}) depende da quantidade de pontos de colocação $x_i$. No caso de usarmos 2 pontos $(x_1,x_2)$, temos : 
+
+\begin{equation}
+    \begin{bmatrix}
+    \mathcal{L}(N_1(x_1)) && \mathcal{L}(N_2(x_1)) \\ 
+    \mathcal{L}(N_1(x_2)) && \mathcal{L}(N_2(x_2)) 
+    \end{bmatrix}
+    \cdot 
+    \begin{bmatrix}
+        c_1 \\
+        c_2 
+    \end{bmatrix}
+    = 
+    \begin{bmatrix}
+        h(x_1) \\ 
+        h(x_2)
+    \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+    \mathbf{K}\mathbf{c} = \mathbf{b}
+\end{equation}
+
+Onde temos que o símbolo $\mathcal{L}$ respresenta um operador diferencial de 2 ordem, que nesse caso em específico vale : 
+
+$$\mathcal{L}(N_1(x_1)) = a(x_1) \dfrac{d^2N_1}{dx^2}(x_1) + b(x_1)\dfrac{dN_1}{dx}(x_1) + c(x_1)N_1(x_1) $$
+
+$$\mathcal{L}(N_2(x_1)) = a(x_1) \dfrac{d^2N_2}{dx^2}(x_1) + b(x_1)\dfrac{dN_2}{dx}(x_1) + c(x_1)N_2(x_1) $$
+
+$$\mathcal{L}(N_1(x_2)) = a(x_2) \dfrac{d^2N_1}{dx^2}(x_2) + b(x_2)\dfrac{dN_2}{dx}(x_2) + c(x_2)N_1(x_2) $$
+
+$$\mathcal{L}(N_2(x_2)) = a(x_2) \dfrac{d^2N_2}{dx^2}(x_2) + b(x_2)\dfrac{dN_2}{dx}(x_2) + c(x_2)N_2(x_2) $$
+
+E assim por diante. Agora veremos como podemos aplicar o método a um problema de valor de contorno simples. Para isso, sempre iremos considerar no momento apenas condições de contorno homogêneas\footnote{Quando estudarmos o método de Galerkin, veremos como podemos usar esse método para resolver condições de contorno não homogêneas.}.
+
+Seja a equação diferencial de 2 ordem : 
+
+$$\dfrac{d^2u}{dx^2} + u = x   \ \ \textrm{com } \ \ u(0) = 0, u(1) = 0$$
+
+Mediantes as técnicas aprendidas nos curso introdutórios de equações diferencias \footnote{Para maiores detlahes sobre a teoria das equações diferencias ordinária e parciais, consulte as seguinte referências : \citep{zill2016equaccoes}, \citep{boyce2010equaccoes} e \citep{kreyszig2009matematica}}, obtemos a solução analítica da EDO acima, dada por : 
+
+\begin{equation*}
+    u(x) = x - \frac{\sin(x)}{\sin(1)}   \label{sol_anal1}
+\end{equation*}
+
+Esse resultado pode ser facilmente obtido em python usando o módulo \textit{SymPy}\footnote{Para aprender sobre esse magnífico pacote, conulte o seguinte endereço de sua documentação : \href{https://docs.sympy.org/latest/index.html}{SymPy}}, que serve como uma \textit{SAC} (Sistema de Computação Algébrica), que manipula símbolos de forma exata, similarmente como se estivessemos resolvendo o problema à mão pela matemática.
+
+O seguinte código obtem a solução analítica da EDO do exemplo acima 
+
+\vspace{1cm}
+
+{\textbf{\large Código Python}}
+
+
+\begin{lstlisting}
+"""
+========================================================
+descrição : Solução da Equação Diferencial usando o SymPy
+data : 05/01/25
+programador : Marcelo L. Almeida 
+========================================================
+"""
+# modulos usados :
+import numpy as np 
+import scipy as sp 
+from sympy import (symbols, diff,dsolve,Eq,init_printing,lambdify,sin,cos, integrate, Function)
+import matplotlib.pyplot as plt 
+# deixando a saida simbolica em latex : 
+init_printing(use_latex= True)
+
+## ===== codigo para resolução da edo ======== ## 
+# criando os símbolos 
+x = symbols("x", real = True)
+u = Function("u")(x)
+
+# criando a equação diferencial 
+eq_edo = Eq(diff(u,x,2) + u, x)
+
+# criando as condições de contorno como dicionarios 
+pvc = {u.subs(x,0) : 0, 
+       u.subs(x,1) : 0}
+
+# resolvendo a equação diferencial :
+sol_analitic = dsolve(eq_edo,u, ics=pvc)
+
+print(f"Solução Analítica : \n")
+
+print(sol_analitic)
+\end{lstlisting}
+
+Ao executar o código acima, a saída que reprenseta a nossa solução analítica é : 
+
+\begin{tcolorbox}[colback=gray!10!white, colframe=blue!40!black, title={ Saída do Código}]
+ $$u(x) = x - \frac{\sin(x)}{\sin(1)}$$
+\end{tcolorbox}
+
+Onde podemos observar que a solução obtida em Python bate com a nossa solução em (\ref{sol_anal1}). 
+
+Agora que estamos de posse da solução analítica, nos resta aplicar o método da colocação para  aproximar a solução exata.
+
+Antes disso, precisamos definir duas coisas importantes : \textit{quais funções de base global usar ?} e \textit{quais pontos de colocação $x_i$ usar no intervalo de $[0,1]$ }?. 
+Para responder a primeira pergunta, devemos considerar o seguinte Teorema 
+
+\begin{tcolorbox}[colback=gray!10!white, colframe=green!40!black, title={ Teorema das Funções de Bases Globais }]
+Para que as nossas funções de base aproximem de forma satisfatória as nossa solução analítica, elas devem satisfazer os seguintte itens : 
+
+\begin{enumerate}
+    \item \textbf{Propriedade da Completude} : As funções de aproximação devem representar de forma exata a solução analítica quando $n \longrightarrow \infty$. isso siginifica satisfazer : 
+
+    \begin{equation*}
+        \lim_{n \longrightarrow \infty}  \Big|\Big| u(x) - \sum_{j = 1}^{n}c_j \phi_j(x) \Big|\Big| = 0 
+    \end{equation*}
+
+    \item \textbf{Linearidade} : As funções de base devem formar um conjunto de funções linearmente independentes dentro do intervalo de definição da nossa EDO/EDP. 
+
+    \item \textbf{Satisfazer as Condições de Contorno} : O conjunto de funções L.I devem satisfazer todas as condições de contorno do porblema. 
+
+    \item  \textbf{Diferenciabilidade} : Se as nossa EDO/EDP contiver derivadas de ordem k, então as nossas funções de base devem ser no mínimo de classe $\mathcal{C}^{k}$(contínuas e diferenciáveis até a ordem k). 
+\end{enumerate}
+
+\end{tcolorbox}
+
+Mediante à esses fatos, podemos escolher o nosso conjunto por : 
+
+\begin{equation*}
+    \phi_j(x) = x^{j}(1 - x)
+\end{equation*}
+
+que para o nosso problema diferencial, satisfaz todas as condições de contorno : 
+
+\begin{equation*}
+    \phi_j(0) =  \phi_j(1) = 0 \ \ \textrm{para} \ \ j = 1,2,\ldots,n.    
+\end{equation*}
+
+
+%% ================ falar dos polinomios ortogonais ============ %% 
+
+
+Agora por último, precisamos decidir como gerar os pontos de colocação, que determinará o tamanho do sistema linear que será resolvido para obter a solução numérica do problema. Uma das forma mais eficientes de gerar os pontos de colocação para o método é usando os pontos de \textit{chebyshev}. 
+
+Esse pontos são obtidos calculando as raízes dos polinômios de \textit{chebyshev} $T_n(x)$, que são usualmentes usados em técnicas de quaadradura numérica (\citep{press2007numerical}) , \citep{chapra2011numerical} e \citep{nakamura1990applied}. 
+
+Esse pontos são obtidos para um intervalo de $[-1,1]$, mas usando a fórmula a seguir podemos gerar para um intervalo $[a,b]$. 
+
+\begin{equation}
+    x_i = \dfrac{a + b}{2 } + \dfrac{b - a}{2}\cos\left(\dfrac{\left(2i - 1\right)\pi}{2N}\right)
+\end{equation}
+ 
+Agora que temos todas as ferramentas necessárias para aplicar o método aproximado, um exemplo de código a seguir é usado para computar a solução aproximada para o problema diferencial acima. Ao final do código, é plotado na mesma figura a solução analítica e numérica pelo método da colocação. 
+
+
+
+\vspace{0.5cm}
+
+{\textbf{\large Código Python}}
+
+
+
+\begin{lstlisting}
+"""
+========================================================
+descrição : Solução da Equação Diferencial usando o 
+método da colocação
+data : 05/01/25
+programador : Marcelo L. Almeida 
+========================================================
+"""
+import numpy as np 
+import scipy as sp 
+from sympy import (symbols, diff,dsolve,Eq,init_printing,lambdify,
+                   sin,cos, integrate, Function, Matrix, zeros)
+import matplotlib.pyplot as plt 
+from scipy.special import roots_chebyc
+# deixando a saida simbolica em latex : 
+init_printing(use_latex= True)
+\end{lstlisting}
+
+
+
+\begin{lstlisting}
+"""
+========================================================
+descrição :  Solução da Equação Diferencial usando o 
+método da colocação.
+data : 05/01/25
+programador : Marcelo L. Almeida 
+========================================================
+"""
+# criando os símbolos 
+x = symbols("x", real = True)
+u = Function("u")(x)
+
+# criando a equação diferencial 
+eq_edo = Eq(diff(u,x,2) + u, x)
+
+# criando as condições de contorno como dicionarios 
+pvc = {u.subs(x,0) : 0, 
+       u.subs(x,1) : 0}
+
+# resolvendo a equação diferencial :
+sol_analitic = dsolve(eq_edo,u, ics=pvc)
+
+# criando o vetor de pontos no eixo x :
+a , b = 0 , 1 
+vetx = np.linspace(a,b,100)
+
+# avaliando a nossa solução analitica nesse vetor 
+sol_analitic = lambdify(x,sol_analitic.rhs,"numpy")
+u_analtic = sol_analitic(vetx)
+
+## ================== computando o metodo da colocação ======== ## 
+
+N = 4  # quantidade de pontos de colocação 
+i = np.arange(1,N+1)
+vet_xi = (a + b)/2 + ((b - a)/2)*np.cos(((2*i -1)/(2*N))*np.pi)
+
+# criando as funções de base : phi_j 
+lista_phi_j = Matrix([x**(i+1)*(1 - x) for i in  range(N)]) 
+
+K = zeros(N,N)
+F = zeros(N,1)
+
+# montando a matriz global do sistema :
+
+for i in range(N) : 
+       
+       for j in range(N) : 
+              
+              expr = diff(lista_phi_j[j],x,2).subs(x,vet_xi[i]) + lista_phi_j[j].subs(x,vet_xi[i])
+              
+              K[i,j] = expr
+              
+              
+for i in range(N) : 
+       
+       F[i] = vet_xi[i]
+       
+# resolvendo o sistema linear usando a fatoração LU 
+cj = K.LUsolve(F)
+
+## ================= montando a solução geral ============== ## 
+
+u_n = sum(cj[i]*lista_phi_j[i] for i in range(N))
+
+u_n = lambdify(x,u_n,"numpy")
+
+## ================= criando o plote ================== ## 
+fig, ax = plt.subplots(figsize = (8,6))
+
+ax.plot(vetx, sol_analitic(vetx),"-b", label = "Solução Analítica", zorder = 1)
+ax.scatter(vetx[::2], u_n(vetx[::2]), facecolors = "none", edgecolors = "r",zorder = 2,
+           label = "Solução NUmérica (Colocação)")
+ax.set_xlabel(r"$x$")
+ax.set_ylabel(r"$u(x)$")
+ax.set_title(r"Plote da Solução analítica e Numérica para a EDO : $\dfrac{d^2u}{dx^2} + u = x$")
+ax.grid(True)
+ax.legend(frameon = False , loc = 0)
+ax.minorticks_on() 
+
+## ============ salvando os dados em arquivos ========== ## 
+M_analitic = np.vstack((vetx,u_analtic)).T 
+np.savetxt("dados_analitic_coloc.txt", M_analitic,fmt="%.5f", header="Solução analítica - Método da colocação")
+
+M_numeric = np.vstack((vetx,u_n(vetx))).T 
+np.savetxt("dados_numeric_coloc.txt", M_numeric,fmt="%.5f", header="Solução numérica - Método da colocação")
+
+\end{lstlisting}
+
+
+Após executar o código acima, temos o seguinte gráfico na página a seguir, que mostra a solução analítica e numérica usando o método da colocação. Na figura (\ref{fig:colocacao}), temos em linha contínua e azul a solução analítica da equação diferencial e em círculos furados e vermelhos a solução numérica via colocação (apenas com alguns valores). 
+
+
+
+\begin{figure}[!htp]
+    \centering
+    \includegraphics[scale = 0.65]{imagens/sol_colocacao.png}
+    \caption{Solução Numérica e Analítica}
+    \label{fig:colocacao}
+\end{figure}
+
+
+Tão importante como a implementação do método numérico, é a implementação da análise do erro entre a solução exata e aproximada. Para isso, usaremos duas métricas para quantificar essa discrepância : \textit{Erro Absoluto}.
+
+O código a seguir cria a função para cálculo do erro e plota seus gráficos para comparação. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale = 0.65]{imagens/erro_abs.png}
+    \caption{Erro Absoluto}
+    \label{fig:err_abs}
+\end{figure}
+
+
+\vspace{2cm}
+
+
+
+\subsection{Método de Mínimos Quadrados}
+
+Outro Método bastante importante é o ...
+
+
+%% =============== campo para referencias do artigo  =-========================= %% 
+\newpage 
+
+\bibliographystyle{cbe2}
+\bibliography{new_references} % Nome do arquivo .bib sem a extensão
+
+
+
+\end{document}
