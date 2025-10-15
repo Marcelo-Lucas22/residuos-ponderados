@@ -1,6 +1,6 @@
 # 📚 Métodos dos Resíduos Ponderados: Teoria e Aplicações Numéricas  
 
-**Repositório da apostila sobre técnicas de resíduos ponderados para solução de EDOs/PDEs, com implementações em Python.**  
+**Repositório da apostila sobre técnicas de resíduos ponderados para solução de EDOs, com implementações em Python.**  
 
 ---
 
